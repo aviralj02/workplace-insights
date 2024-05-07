@@ -1,8 +1,11 @@
+"use client";
+
 import Image from "next/image";
 import React from "react";
 import WILogo from "@/public/workplace-insights-logo.png";
 import Link from "next/link";
 import { Button } from "./ui/button";
+import { signIn } from "next-auth/react";
 
 type Props = {};
 
@@ -49,7 +52,9 @@ const Navbar = (props: Props) => {
       </ul>
 
       <div className="hidden gap-7 items-center lg:flex">
-        <Link href="/">Log in</Link>
+        <span onClick={() => signIn()} className="cursor-pointer">
+          Log in
+        </span>
         <Button>Get Started</Button>
       </div>
     </div>

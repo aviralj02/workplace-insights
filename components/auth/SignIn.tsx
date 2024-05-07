@@ -5,6 +5,9 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useToast } from "../ui/use-toast";
+import { signIn } from "next-auth/react";
 
 type Props = {
   setRegisterPage: (state: boolean) => void;
@@ -17,17 +20,46 @@ type Inputs = {
 
 const SignIn = ({ setRegisterPage }: Props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const navigate = useRouter();
+  const { toast } = useToast();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = (data) => {};
+  const onSubmit: SubmitHandler<Inputs> = async (data: Inputs) => {
+    const { email, password } = data;
+
+    try {
+      setIsLoading(true);
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (res?.error) {
+        toast({
+          title: res.error,
+          variant: "destructive",
+        });
+      }
+      if (res?.ok) {
+        navigate.push("/dashboard");
+      }
+      setIsLoading(false);
+    } catch (error) {}
+  };
 
   return (
     <div className="flex flex-col bg-[#F7F7F7] px-7 py-6 rounded-2xl max-w-2xl w-full mx-4 items-center gap-6">
       <h1 className="text-2xl font-medium">Log in</h1>
-      <form className="flex flex-col w-full gap-6 items-center">
+      <form
+        className="flex flex-col w-full gap-6 items-center"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <Input
           id="email"
           placeholder="Email"

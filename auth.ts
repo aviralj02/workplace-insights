@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import dbConnect from "./lib/db";
 import User from "./lib/models/user";
+import { AdapterUser } from "next-auth/adapters";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -11,7 +12,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {},
 
       authorize: async (credentials) => {
-        dbConnect();
+        await dbConnect();
 
         const { email, password } = credentials as {
           email: string;
@@ -37,4 +38,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
+
+  callbacks: {
+    session: async ({ session }) => {
+      const user = await User.findOne({
+        email: session.user.email,
+      });
+
+      session.user = {
+        userName: user.userName,
+        email: user.email,
+      } as AdapterUser & {
+        userName: string;
+        email: string;
+      };
+      return session;
+    },
+  },
+
+  pages: {
+    signIn: "/login",
+  },
 });
