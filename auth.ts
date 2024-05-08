@@ -41,6 +41,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
   callbacks: {
     session: async ({ session }) => {
+      await dbConnect();
+
       const user = await User.findOne({
         email: session.user.email,
       });

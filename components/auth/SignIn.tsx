@@ -46,9 +46,7 @@ const SignIn = ({ setRegisterPage }: Props) => {
           variant: "destructive",
         });
       }
-      if (res?.ok) {
-        navigate.push("/dashboard");
-      }
+      navigate.push("/dashboard");
       setIsLoading(false);
     } catch (error) {}
   };
